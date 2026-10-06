@@ -73,6 +73,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://blueleafengineering.com",
   },
+  icons: {
+    icon: "/images/favicon-logo.ico",
+    shortcut: "/images/favicon-logo.ico",
+    apple: "/images/favicon-logo.png",
+  },
 };
 
 // JSON-LD Structured Data
@@ -170,7 +175,8 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/images/favicon-logo.ico" sizes="any" />
+        <link rel="apple-touch-icon" href="/images/favicon-logo.png" />
       </head>
       <body className="font-sans antialiased bg-white text-slate-800">
         {children}

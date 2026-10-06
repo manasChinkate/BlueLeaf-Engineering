@@ -32,7 +32,7 @@ export default function Hero() {
       {/* Background Image */}
       <div className="hero-parallax absolute inset-0">
         <Image
-          src="/images/hero-bg.png"
+          src="/images/hero-2.webp"
           alt="Industrial fire rated door installation in a commercial warehouse"
           fill
           className="object-cover"

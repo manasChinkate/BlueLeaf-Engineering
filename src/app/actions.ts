@@ -1,6 +1,7 @@
 "use server";
 
 import { contactFormSchema, type ContactFormData } from "@/lib/schema";
+import { sendContactEmail } from "@/lib/mail";
 
 export type FormState = {
   success: boolean;
@@ -29,10 +30,6 @@ export async function submitContactForm(
     };
   }
 
-  // In production, integrate with:
-  // - AWS SES for email notifications
-  // - A CRM (HubSpot, Salesforce) for lead tracking
-  // - A database for storing inquiries
   const data: ContactFormData = validationResult.data;
 
   console.log("New inquiry received:", {
@@ -43,12 +40,20 @@ export async function submitContactForm(
     timestamp: new Date().toISOString(),
   });
 
-  // Simulate a slight delay for UX
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  return {
-    success: true,
-    message:
-      "Thank you for your inquiry! Our team will contact you within 24 hours.",
-  };
+  try {
+    await sendContactEmail(data);
+    return {
+      success: true,
+      message:
+        "Thank you for your inquiry! Our team has received your message and will contact you within 24 hours.",
+    };
+  } catch (error: any) {
+    console.error("Failed to send contact email:", error);
+    return {
+      success: false,
+      message:
+        error?.message ||
+        "An unexpected error occurred while sending your message. Please try again later or call us directly.",
+    };
+  }
 }

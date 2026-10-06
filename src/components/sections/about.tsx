@@ -98,7 +98,7 @@ export default function About() {
           <div className="relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
               <Image
-                src="/images/about.png"
+                src="/images/hero-1.webp"
                 alt="Blueleaf Engineering manufacturing facility with workers assembling fire rated doors"
                 width={600}
                 height={450}

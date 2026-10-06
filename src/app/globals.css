@@ -60,6 +60,17 @@ html {
   animation-play-state: paused;
 }
 
+@keyframes scroll-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.animate-scroll-right {
+  animation: scroll-right 30s linear infinite;
+}
+.animate-scroll-right:hover {
+  animation-play-state: paused;
+}
+
 /* ===== Gradient Text ===== */
 .gradient-text {
   background: linear-gradient(135deg, #2563eb 0%, #059669 100%);
