@@ -1,4 +1,6 @@
 import nodemailer from "nodemailer";
+import path from "path";
+import fs from "fs";
 import { ContactFormData } from "@/lib/schema";
 
 export async function sendContactEmail(data: ContactFormData) {
@@ -26,6 +28,38 @@ export async function sendContactEmail(data: ContactFormData) {
     },
   });
 
+  // Resolve company logo from public folder
+  const logoPath = path.join(process.cwd(), "public", "images", "logo.png");
+  const fallbackLogoPath = path.join(
+    process.cwd(),
+    "public",
+    "images",
+    "favicon-logo.png"
+  );
+  const resolvedLogoPath = fs.existsSync(logoPath)
+    ? logoPath
+    : fs.existsSync(fallbackLogoPath)
+    ? fallbackLogoPath
+    : null;
+
+  const attachments = resolvedLogoPath
+    ? [
+        {
+          filename: "logo.png",
+          path: resolvedLogoPath,
+          cid: "blueleaf-logo",
+        },
+      ]
+    : [];
+
+  const logoHeaderHtml = resolvedLogoPath
+    ? `<div style="margin-bottom: 12px; text-align: center;">
+         <img src="cid:blueleaf-logo" alt="BlueLeaf Engineering" style="height: 48px; max-width: 180px; width: auto; object-fit: contain; display: inline-block; vertical-align: middle; background-color: #ffffff; padding: 6px 14px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);" />
+       </div>`
+    : `<div style="display: inline-block; margin-bottom: 8px;">
+         <span style="display: inline-block; width: 36px; height: 36px; line-height: 36px; background-color: rgba(255,255,255,0.2); color: #ffffff; font-weight: bold; border-radius: 8px; font-size: 20px; vertical-align: middle;">🛡️</span>
+       </div>`;
+
   // 1. Send notification email to Client / Admin
   const adminMailOptions = {
     from: `"BlueLeaf Website Inquiry" <${gmailUser}>`,
@@ -44,10 +78,8 @@ ${data.requirement}`,
       <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
         <!-- Brand Header -->
         <div style="background: linear-gradient(135deg, #1e40af 0%, #047857 100%); background-color: #1e40af; padding: 24px; border-radius: 8px 8px 0 0; text-align: center;">
-          <div style="display: inline-block;">
-            <span style="display: inline-block; width: 32px; height: 32px; line-height: 32px; background-color: rgba(255,255,255,0.2); color: #ffffff; font-weight: bold; border-radius: 8px; font-size: 18px; margin-right: 8px; vertical-align: middle;">🛡️</span>
-            <span style="color: #ffffff; font-size: 22px; font-weight: 700; vertical-align: middle;">BlueLeaf Engineering</span>
-          </div>
+          ${logoHeaderHtml}
+          <div style="color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; margin: 0;">BlueLeaf Engineering</div>
           <p style="color: #cbd5e1; margin: 6px 0 0 0; font-size: 13px; font-weight: 500; letter-spacing: 0.5px;">NEW WEBSITE INQUIRY</p>
         </div>
         
@@ -81,6 +113,7 @@ ${data.requirement}`,
         </div>
       </div>
     `,
+    attachments,
   };
 
   // 2. Send confirmation email to Customer (Visitor)
@@ -99,10 +132,8 @@ BlueLeaf Engineering Team`,
       <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
         <!-- Brand Header -->
         <div style="background: linear-gradient(135deg, #1e40af 0%, #047857 100%); background-color: #1e40af; padding: 24px; border-radius: 8px 8px 0 0; text-align: center;">
-          <div style="display: inline-block;">
-            <span style="display: inline-block; width: 32px; height: 32px; line-height: 32px; background-color: rgba(255,255,255,0.2); color: #ffffff; font-weight: bold; border-radius: 8px; font-size: 18px; margin-right: 8px; vertical-align: middle;">🛡️</span>
-            <span style="color: #ffffff; font-size: 22px; font-weight: 700; vertical-align: middle;">BlueLeaf Engineering</span>
-          </div>
+          ${logoHeaderHtml}
+          <div style="color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; margin: 0;">BlueLeaf Engineering</div>
           <p style="color: #93c5fd; margin: 6px 0 0 0; font-size: 13px; font-weight: 500;">Industrial Safety & Engineering Solutions</p>
         </div>
         
@@ -126,6 +157,7 @@ BlueLeaf Engineering Team`,
         </div>
       </div>
     `,
+    attachments,
   };
 
   // Dispatch emails

@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   Menu,
   X,
   Phone,
-  Shield,
-  Leaf,
 } from "lucide-react";
 
 const navLinks = [
@@ -39,9 +38,15 @@ export default function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 group">
-            <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-emerald-500 flex items-center justify-center shadow-lg group-hover:shadow-blue-500/25 transition-shadow">
-              <Shield className="w-5 h-5 text-white" />
-              <Leaf className="w-3 h-3 text-white absolute bottom-1 right-1" />
+            <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white flex items-center justify-center p-1 shadow-md border border-slate-200/50 group-hover:scale-105 transition-transform">
+              <Image
+                src="/images/logo.png"
+                alt="BlueLeaf Engineering Logo"
+                width={40}
+                height={40}
+                className="w-full h-full object-contain"
+                priority
+              />
             </div>
             <div className="flex flex-col">
               <span

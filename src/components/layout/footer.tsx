@@ -1,6 +1,5 @@
+import Image from "next/image";
 import {
-  Shield,
-  Leaf,
   Phone,
   Mail,
   MapPin,
@@ -42,9 +41,14 @@ export default function Footer() {
           {/* Company Info */}
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-emerald-500 flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
-                <Leaf className="w-3 h-3 text-white absolute" style={{ marginTop: '10px', marginLeft: '10px' }} />
+              <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white flex items-center justify-center p-1 shadow-md border border-slate-700/50">
+                <Image
+                  src="/images/logo.png"
+                  alt="BlueLeaf Engineering Logo"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div>
                 <span className="font-outfit text-lg font-bold text-white">
