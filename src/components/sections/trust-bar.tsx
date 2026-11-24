@@ -4,8 +4,8 @@ interface ClientLogo {
   file: string;
 }
 
-const PUBLIC_DEVELOPMENT_URL =
-  process.env.PUBLIC_DEVELOPMENT_URL || "/images/client logos";
+const LOGO_BASE_PATH = "/images/client logos";
+
 
 const clientLogos: ClientLogo[] = [
   { id: 1, name: "Client Partner 1", file: "logo-1.jpg" },
@@ -46,6 +46,7 @@ export default function TrustBar() {
     animationClass: string,
     duration: string
   ) => {
+
     // Repeat items for continuous infinite marquee loop
     const repeatedItems = [...items, ...items, ...items, ...items];
     return (
@@ -55,7 +56,7 @@ export default function TrustBar() {
           style={{ animationDuration: duration }}
         >
           {repeatedItems.map((client, i) => {
-            const logoSrc = `${PUBLIC_DEVELOPMENT_URL}/${client.file}`;
+            const logoSrc = `${LOGO_BASE_PATH}/${client.file}`;
             return (
               <div
                 key={`${client.id}-${i}`}

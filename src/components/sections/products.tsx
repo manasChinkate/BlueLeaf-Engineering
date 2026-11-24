@@ -22,7 +22,7 @@ const products = {
     },
     {
       title: "Double Leaf Fire Doors",
-      image: "/images/fire-door.png",
+      image: "/images/fire-door.png", 
       description:
         "Wide-span fire rated double doors for large openings in industrial and commercial applications. Custom sizes available.",
       useCases: ["Industrial Plants", "Hospitals", "Data Centers"],

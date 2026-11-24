@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useActionState } from "react";
+import { useEffect, useRef, useActionState, startTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -14,6 +14,17 @@ import {
 } from "lucide-react";
 import { contactFormSchema, type ContactFormData } from "@/lib/schema";
 import { submitContactForm, type FormState } from "@/app/actions";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 const initialState: FormState = {
   success: false,
@@ -22,19 +33,20 @@ const initialState: FormState = {
 
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction, isPending] = useActionState(
     submitContactForm,
     initialState
   );
 
-  const {
-    register,
-    formState: { errors },
-    reset,
-  } = useForm<ContactFormData>({
+  const form = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
-    mode: "onBlur",
+    defaultValues: {
+      name: "",
+      phone: "",
+      email: "",
+      requirement: "",
+    },
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -50,9 +62,30 @@ export default function Contact() {
 
   useEffect(() => {
     if (state.success) {
-      reset();
+      form.reset();
+    } else if (state.errors) {
+      Object.entries(state.errors).forEach(([field, messages]) => {
+        if (messages?.[0]) {
+          form.setError(field as keyof ContactFormData, {
+            type: "server",
+            message: messages[0],
+          });
+        }
+      });
     }
-  }, [state.success, reset]);
+  }, [state, form]);
+
+  const onSubmit = (data: ContactFormData) => {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("phone", data.phone);
+    formData.append("email", data.email);
+    formData.append("requirement", data.requirement);
+
+    startTransition(async () => {
+      await formAction(formData);
+    });
+  };
 
   return (
     <section
@@ -87,133 +120,121 @@ export default function Contact() {
                     Thank You!
                   </h3>
                   <p className="text-slate-500 mb-6">{state.message}</p>
-                  <button
+                  <Button
                     onClick={() => window.location.reload()}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors"
+                    className="inline-flex items-center gap-2"
                   >
                     Submit Another Inquiry
-                  </button>
+                  </Button>
                 </div>
               ) : (
-                <form ref={formRef} action={formAction} className="space-y-6">
-                  {state.message && !state.success && (
-                    <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
-                      {state.message}
-                    </div>
-                  )}
-
-                  {/* Name */}
-                  <div>
-                    <label
-                      htmlFor="contact-name"
-                      className="block text-sm font-semibold text-slate-700 mb-2"
-                    >
-                      Full Name *
-                    </label>
-                    <input
-                      {...register("name")}
-                      id="contact-name"
-                      name="name"
-                      type="text"
-                      placeholder="Enter your full name"
-                      className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    />
-                    {(errors.name || state.errors?.name) && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.name?.message || state.errors?.name?.[0]}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Phone & Email */}
-                  <div className="grid sm:grid-cols-2 gap-6">
-                    <div>
-                      <label
-                        htmlFor="contact-phone"
-                        className="block text-sm font-semibold text-slate-700 mb-2"
-                      >
-                        Phone Number *
-                      </label>
-                      <input
-                        {...register("phone")}
-                        id="contact-phone"
-                        name="phone"
-                        type="tel"
-                        placeholder="10-digit mobile number"
-                        className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      />
-                      {(errors.phone || state.errors?.phone) && (
-                        <p className="mt-1 text-sm text-red-500">
-                          {errors.phone?.message || state.errors?.phone?.[0]}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="contact-email"
-                        className="block text-sm font-semibold text-slate-700 mb-2"
-                      >
-                        Email Address *
-                      </label>
-                      <input
-                        {...register("email")}
-                        id="contact-email"
-                        name="email"
-                        type="email"
-                        placeholder="your@email.com"
-                        className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      />
-                      {(errors.email || state.errors?.email) && (
-                        <p className="mt-1 text-sm text-red-500">
-                          {errors.email?.message || state.errors?.email?.[0]}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Requirement */}
-                  <div>
-                    <label
-                      htmlFor="contact-requirement"
-                      className="block text-sm font-semibold text-slate-700 mb-2"
-                    >
-                      Your Requirement *
-                    </label>
-                    <textarea
-                      {...register("requirement")}
-                      id="contact-requirement"
-                      name="requirement"
-                      rows={4}
-                      placeholder="Describe your requirement — product type, quantity, dimensions, etc."
-                      className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                    />
-                    {(errors.requirement || state.errors?.requirement) && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.requirement?.message ||
-                          state.errors?.requirement?.[0]}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Submit */}
-                  <button
-                    type="submit"
-                    disabled={isPending}
-                    className="w-full inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold text-lg shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:from-blue-700 hover:to-blue-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-6"
                   >
-                    {isPending ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Submitting...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-5 h-5" />
-                        Submit Inquiry
-                      </>
+                    {state.message && !state.success && (
+                      <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
+                        {state.message}
+                      </div>
                     )}
-                  </button>
-                </form>
+
+                    {/* Name */}
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Full Name *</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter your full name"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Phone & Email */}
+                    <div className="grid sm:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Phone Number *</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="tel"
+                                placeholder="10-digit mobile number"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email Address *</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="email"
+                                placeholder="your@email.com"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Requirement */}
+                    <FormField
+                      control={form.control}
+                      name="requirement"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Your Requirement *</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              rows={4}
+                              placeholder="Describe your requirement — product type, quantity, dimensions, etc."
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Submit */}
+                    <Button
+                      type="submit"
+                      size="lg"
+                      disabled={isPending}
+                      className="w-full text-base sm:text-lg"
+                    >
+                      {isPending ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Submitting...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-5 h-5" />
+                          Submit Inquiry
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </Form>
               )}
             </div>
           </div>
